@@ -2,9 +2,24 @@ import React from 'react'
 
 import {Stage} from 'react-konva'
 
-import {Board} from '../styled/TicTacToe'
+import {Board, Squares} from '../styled/TicTacToe'
 
 class TicTacToe extends React.Component {
+
+    constructor(props){
+        super(props);
+
+        this.combos = [
+            [0,1,2],
+            [3,4,5],
+            [6,7,8],
+            [0,3,6],
+            [1,4,7],
+            [2,5,8],
+            [0,4,8],
+            [2,4,6]
+        ];
+    }
 
     state = {
         rows: 3,
@@ -44,12 +59,41 @@ class TicTacToe extends React.Component {
         })
     }
 
-    move = () => {
-
+    move = (index, marker) => {
+        console.log('Move made', marker, index)
     }
 
-    makeAiMove = () => {
+    makeAiMove = (gameState) => {
+        let otherMark = this.state.otherMark;
+        let openSquares = [];
+        gameState.forEach( (square, index) => {
+            if(!square) {
+                openSquares.push(index)
+            }
+        });
 
+        let aiMove = openSquares[this.random(0, openSquares.length)];
+        this.move(aiMove, otherMark)
+    }
+
+    random = (min, max) => {
+        min = Math.ceil(min)
+        max = Math.floor(max);
+
+        return Math.floor(Math.random() * (max-min))+min;
+    }
+
+    winChecker = (gameState) => {
+        let combos = this.combos;
+
+        return combos.find( (combo) =>  {
+            let [a,b,c] = combo;
+            return (
+                gameState[a] === gameState[b]
+                && gameState[b] === gameState[c]
+                && gameState[c]
+             );
+        })
     }
 
     turingTest = () => {
@@ -69,7 +113,16 @@ class TicTacToe extends React.Component {
                     height={size}
                 >
                     <Board unit={unit} size={size} rows={rows}/>
-                    <Squares/>
+                    <Squares
+                        unit={unit}
+                        coordinates={coordinates}
+                        gameState={gameState}
+                        win={win}
+                        gameOver={gameOver}
+                        yourTurn={yourTurn}
+                        ownMark={ownMark}
+                        move={this.move}
+                    />
                 </Stage>
             </div>
         )
